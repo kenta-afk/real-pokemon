@@ -129,7 +129,7 @@ pub fn setup_sprites(
             }),
             ..default()
         },
-        Transform::from_scale(Vec3::splat(6.0)).with_translation(Vec3::new(0.0, 0.0, 0.0)),
+        Transform::from_scale(Vec3::splat(3.0)).with_translation(Vec3::new(0.0, 0.0, 0.0)),
         idle_sprite,
         character
     ));
