@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::plugins::internal::components::animation::{AnimationConfig, Character, Direction};
+use super::components::animation::{AnimationConfig, Character, Direction};
 
 // This system changes the character's direction and animation when arrow keys are pressed
 pub fn change_direction(
