@@ -32,7 +32,15 @@ pub fn change_direction(
             // No keys pressed - go to idle
             if character.is_moving {
                 new_direction = Some(Direction::Idle);
-                new_config = Some(character.idle_config.clone());
+                // Set idle frame based on the last direction
+                let idle_config = match character.current_direction {
+                    Direction::Right => AnimationConfig::new(0, 0, 1),     
+                    Direction::Left => AnimationConfig::new(7, 7, 1),  
+                    Direction::Backward => AnimationConfig::new(14, 14, 1), 
+                    Direction::Forward => AnimationConfig::new(21, 21, 1),
+                    Direction::Idle => character.idle_config.clone(), 
+                };
+                new_config = Some(idle_config);
                 character.is_moving = false;
             }
         }
