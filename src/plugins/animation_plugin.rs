@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::systems::animation_systems::{
+use crate::plugins::internal::systems::animation_systems::{
     change_direction, execute_animations, setup_sprites
 };
 

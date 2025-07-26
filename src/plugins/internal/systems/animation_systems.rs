@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::components::animation::{AnimationConfig, Character, Direction};
+use crate::plugins::internal::components::animation::{AnimationConfig, Character, Direction};
 
 // This system changes the character's direction and animation when arrow keys are pressed
 pub fn change_direction(
@@ -92,17 +92,6 @@ pub fn setup_sprites(
 ) {
     commands.spawn(Camera2d);
 
-    // Create a minimal UI explaining how to interact with the example
-    commands.spawn((
-        Text::new("Hero design in Pokemon Game"),
-        Node {
-            position_type: PositionType::Absolute,
-            top: Val::Px(12.0),
-            left: Val::Px(12.0),
-            ..default()
-        }
-    ));
-
     // Load the sprite sheet using the `AssetServer`
     let texture = asset_server.load("gabe-idle-run.png");
 
@@ -111,34 +100,34 @@ pub fn setup_sprites(
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
 
     // The first (left-hand) sprite runs at 20 FPS
-    let move_right_config = AnimationConfig::new(0, 6, 20);
-    let move_left_config = AnimationConfig::new(7, 13, 20);
-    let move_backward_config = AnimationConfig::new(14, 16, 20);
-    let move_forward_config = AnimationConfig::new(21, 25, 20);
-    let idle_config = AnimationConfig::new(0, 0, 1);
+    let move_right_sprite = AnimationConfig::new(0, 6, 20);
+    let move_left_sprite = AnimationConfig::new(7, 13, 20);
+    let move_backward_sprite = AnimationConfig::new(14, 16, 20);
+    let move_forward_sprite = AnimationConfig::new(21, 25, 20);
+    let idle_sprite = AnimationConfig::new(0, 0, 1);
 
     // Create a single character that can move in both directions
     let character = Character {
-        move_right_config: move_right_config.clone(),
-        move_left_config: move_left_config.clone(),
-        move_backward_config: move_backward_config.clone(),
-        move_forward_config: move_forward_config.clone(),
-        idle_config: idle_config.clone(),
+        move_right_config: move_right_sprite,
+        move_left_config: move_left_sprite,
+        move_backward_config: move_backward_sprite,
+        move_forward_config: move_forward_sprite,
+        idle_config: idle_sprite.clone(),
         current_direction: Direction::Idle,
         is_moving: false
     };
 
     commands.spawn((
         Sprite {
-            image: texture.clone(),
+            image: texture,
             texture_atlas: Some(TextureAtlas {
                 layout: texture_atlas_layout.clone(),
-                index: idle_config.first_sprite_index
+                index: idle_sprite.first_sprite_index
             }),
             ..default()
         },
         Transform::from_scale(Vec3::splat(6.0)).with_translation(Vec3::new(0.0, 0.0, 0.0)),
-        idle_config,
+        idle_sprite,
         character
     ));
 }
