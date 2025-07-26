@@ -46,15 +46,14 @@ pub fn change_direction(
         }
         
         // Update direction and animation config if changed
-        if let (Some(direction), Some(config)) = (new_direction, new_config) {
-            if character.current_direction != direction {
+        if let (Some(direction), Some(config)) = (new_direction, new_config)
+            && character.current_direction != direction {
                 character.current_direction = direction;
                 *animation_config = config;
                 if let Some(atlas) = &mut sprite.texture_atlas {
                     atlas.index = animation_config.first_sprite_index;
                 }
             }
-        }
     }
 }
 
