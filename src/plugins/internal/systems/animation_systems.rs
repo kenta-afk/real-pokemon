@@ -10,7 +10,7 @@ pub fn change_direction(
     for (mut character, mut animation_config, mut sprite) in &mut query {
         let mut new_direction = None;
         let mut new_config = None;
-        
+
         // Check if any movement key is pressed
         if input.pressed(KeyCode::ArrowRight) {
             new_direction = Some(Direction::Right);
@@ -34,36 +34,40 @@ pub fn change_direction(
                 new_direction = Some(Direction::Idle);
                 // Set idle frame based on the last direction
                 let idle_config = match character.current_direction {
-                    Direction::Right => AnimationConfig::new(0, 0, 1),     
-                    Direction::Left => AnimationConfig::new(7, 7, 1),  
-                    Direction::Backward => AnimationConfig::new(14, 14, 1), 
+                    Direction::Right => AnimationConfig::new(0, 0, 1),
+                    Direction::Left => AnimationConfig::new(7, 7, 1),
+                    Direction::Backward => AnimationConfig::new(14, 14, 1),
                     Direction::Forward => AnimationConfig::new(21, 21, 1),
-                    Direction::Idle => character.idle_config.clone(), 
+                    Direction::Idle => character.idle_config.clone()
                 };
                 new_config = Some(idle_config);
                 character.is_moving = false;
             }
         }
-        
+
         // Update direction and animation config if changed
         if let (Some(direction), Some(config)) = (new_direction, new_config)
-            && character.current_direction != direction {
-                character.current_direction = direction;
-                *animation_config = config;
-                if let Some(atlas) = &mut sprite.texture_atlas {
-                    atlas.index = animation_config.first_sprite_index;
-                }
+            && character.current_direction != direction
+        {
+            character.current_direction = direction;
+            *animation_config = config;
+            if let Some(atlas) = &mut sprite.texture_atlas {
+                atlas.index = animation_config.first_sprite_index;
             }
+        }
     }
 }
 
 // This system loops through all the sprites in the `TextureAtlas`, from  `first_sprite_index` to
 // `last_sprite_index` (both defined in `AnimationConfig`).
-pub fn execute_animations(time: Res<Time>, mut query: Query<(&mut AnimationConfig, &mut Sprite, &Character)>) {
+pub fn execute_animations(
+    time: Res<Time>,
+    mut query: Query<(&mut AnimationConfig, &mut Sprite, &Character)>
+) {
     for (mut config, mut sprite, character) in &mut query {
         // We track how long the current sprite has been displayed for
         config.frame_timer.tick(time.delta());
-        
+
         // If it has been displayed for the user-defined amount of time (fps)...
         if config.frame_timer.just_finished()
             && let Some(atlas) = &mut sprite.texture_atlas
