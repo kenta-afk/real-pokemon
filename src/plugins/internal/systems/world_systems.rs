@@ -3,7 +3,7 @@ use bevy::prelude::*;
 /// Component to mark entities as solid obstacles (trees, buildings, etc.)
 #[derive(Component)]
 pub struct Obstacle {
-    pub size: Vec2,
+    pub size: Vec2
 }
 
 /// System for setting up the camera
@@ -128,11 +128,11 @@ pub fn setup_kanoko(mut commands: Commands, asset_server: Res<AssetServer>) {
             ..default()
         },
         Obstacle {
-            size: Vec2::new(140.0, 140.0), // Even smaller house collision box for tighter movement
+            size: Vec2::new(140.0, 140.0) // Even smaller house collision box for tighter movement
         }
     ));
 
-    commands. spawn((
+    commands.spawn((
         Sprite {
             image: house_texture.clone(),
             custom_size: Some(Vec2::new(300.0, 300.0)), // Same size as the first house
@@ -143,7 +143,7 @@ pub fn setup_kanoko(mut commands: Commands, asset_server: Res<AssetServer>) {
             ..default()
         },
         Obstacle {
-            size: Vec2::new(140.0, 140.0), // Smaller collision box for tighter movement
+            size: Vec2::new(140.0, 140.0) // Smaller collision box for tighter movement
         }
     ));
 
@@ -158,7 +158,7 @@ pub fn setup_kanoko(mut commands: Commands, asset_server: Res<AssetServer>) {
             ..default()
         },
         Obstacle {
-            size: Vec2::new(140.0, 140.0), // Smaller collision box for tighter movement
+            size: Vec2::new(140.0, 140.0) // Smaller collision box for tighter movement
         }
     ));
 
@@ -223,7 +223,7 @@ pub fn setup_kanoko(mut commands: Commands, asset_server: Res<AssetServer>) {
                 ..default()
             },
             Obstacle {
-                size: Vec2::new(20.0, 20.0), // Smaller tree collision box
+                size: Vec2::new(20.0, 20.0) // Smaller tree collision box
             }
         ));
     }

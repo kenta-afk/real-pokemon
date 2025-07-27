@@ -4,17 +4,18 @@ use super::components::animation::{AnimationConfig, Character, Direction};
 use super::world_systems::Obstacle;
 
 // 型の複雑さの警告を解消するために、Query型にエイリアスを定義します。
-type ObstacleQuery<'w, 's> = Query<'w, 's, (&'static Transform, &'static Obstacle), (Without<Character>, With<Obstacle>)>;
+type ObstacleQuery<'w, 's> =
+    Query<'w, 's, (&'static Transform, &'static Obstacle), (Without<Character>, With<Obstacle>)>;
 
 /// Simple AABB collision detection
 fn check_collision(pos1: Vec3, size1: Vec2, pos2: Vec3, size2: Vec2) -> bool {
     let half_size1 = size1 / 2.0;
     let half_size2 = size2 / 2.0;
-    
-    pos1.x - half_size1.x < pos2.x + half_size2.x &&
-    pos1.x + half_size1.x > pos2.x - half_size2.x &&
-    pos1.y - half_size1.y < pos2.y + half_size2.y &&
-    pos1.y + half_size1.y > pos2.y - half_size2.y
+
+    pos1.x - half_size1.x < pos2.x + half_size2.x
+        && pos1.x + half_size1.x > pos2.x - half_size2.x
+        && pos1.y - half_size1.y < pos2.y + half_size2.y
+        && pos1.y + half_size1.y > pos2.y - half_size2.y
 }
 
 // This system changes the character's direction and animation when arrow keys are pressed
@@ -85,7 +86,7 @@ pub fn move_character(
         let movement_speed = 200.0; // pixels per second
         let delta_time = time.delta().as_secs_f32();
         let character_size = Vec2::new(20.0, 20.0); // Smaller character collision box
-        
+
         // Store original position
         let original_position = transform.translation;
         let mut new_position = original_position;
@@ -107,7 +108,12 @@ pub fn move_character(
         // Check collision with obstacles
         let mut collision_detected = false;
         for (obstacle_transform, obstacle) in &obstacle_query {
-            if check_collision(new_position, character_size, obstacle_transform.translation, obstacle.size) {
+            if check_collision(
+                new_position,
+                character_size,
+                obstacle_transform.translation,
+                obstacle.size
+            ) {
                 collision_detected = true;
                 break;
             }
