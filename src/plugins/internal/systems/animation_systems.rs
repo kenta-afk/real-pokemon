@@ -3,6 +3,9 @@ use bevy::prelude::*;
 use super::components::animation::{AnimationConfig, Character, Direction};
 use super::world_systems::Obstacle;
 
+// 型の複雑さの警告を解消するために、Query型にエイリアスを定義します。
+type ObstacleQuery<'w, 's> = Query<'w, 's, (&'static Transform, &'static Obstacle), (Without<Character>, With<Obstacle>)>;
+
 /// Simple AABB collision detection
 fn check_collision(pos1: Vec3, size1: Vec2, pos2: Vec3, size2: Vec2) -> bool {
     let half_size1 = size1 / 2.0;
@@ -75,7 +78,8 @@ pub fn move_character(
     time: Res<Time>,
     input: Res<ButtonInput<KeyCode>>,
     mut character_query: Query<&mut Transform, With<Character>>,
-    obstacle_query: Query<(&Transform, &Obstacle), (Without<Character>, With<Obstacle>)>
+    // ここで定義した型エイリアスを使用します。
+    obstacle_query: ObstacleQuery
 ) {
     for mut transform in &mut character_query {
         let movement_speed = 200.0; // pixels per second
