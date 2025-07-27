@@ -1,5 +1,11 @@
 use bevy::prelude::*;
 
+/// Component to mark entities as solid obstacles (trees, buildings, etc.)
+#[derive(Component)]
+pub struct Obstacle {
+    pub size: Vec2,
+}
+
 /// System for setting up the camera
 pub fn setup_camera(mut commands: Commands) {
     commands.spawn((
@@ -109,6 +115,53 @@ pub fn setup_kanoko(mut commands: Commands, asset_server: Res<AssetServer>) {
         }
     ));
 
+    let house_texture = asset_server.load("house.png");
+    // Add house at the left-upper area of Kanoko Town (like in Pokemon BW)
+    commands.spawn((
+        Sprite {
+            image: house_texture.clone(),
+            custom_size: Some(Vec2::new(300.0, 300.0)), // Appropriate house size
+            ..default()
+        },
+        Transform {
+            translation: Vec3::new(40.0, 70.0, -8.0), // Left-upper area of kanoko, in front of background
+            ..default()
+        },
+        Obstacle {
+            size: Vec2::new(140.0, 140.0), // Even smaller house collision box for tighter movement
+        }
+    ));
+
+    commands. spawn((
+        Sprite {
+            image: house_texture.clone(),
+            custom_size: Some(Vec2::new(300.0, 300.0)), // Same size as the first house
+            ..default()
+        },
+        Transform {
+            translation: Vec3::new(-150.0, -180.0, -8.0), // Another house in the left-upper area
+            ..default()
+        },
+        Obstacle {
+            size: Vec2::new(140.0, 140.0), // Smaller collision box for tighter movement
+        }
+    ));
+
+    commands.spawn((
+        Sprite {
+            image: house_texture.clone(),
+            custom_size: Some(Vec2::new(300.0, 300.0)), // Same size as the first house
+            ..default()
+        },
+        Transform {
+            translation: Vec3::new(200.0, -180.0, -8.0), // Another house in the right-upper area
+            ..default()
+        },
+        Obstacle {
+            size: Vec2::new(140.0, 140.0), // Smaller collision box for tighter movement
+        }
+    ));
+
     // Load the tree texture
     let tree_texture = asset_server.load("tree.png");
 
@@ -168,6 +221,9 @@ pub fn setup_kanoko(mut commands: Commands, asset_server: Res<AssetServer>) {
                 translation: position,
                 scale: Vec3::splat(4.0),
                 ..default()
+            },
+            Obstacle {
+                size: Vec2::new(20.0, 20.0), // Smaller tree collision box
             }
         ));
     }

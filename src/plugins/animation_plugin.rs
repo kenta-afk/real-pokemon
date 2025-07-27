@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 
-use crate::plugins::internal::systems::animation_systems::{
-    camera_follow, change_direction, execute_animations, move_character, setup_characters
+use crate::plugins::internal::systems::animation_systems::{camera_follow, change_direction, execute_animations, move_character, setup_characters
 };
 use crate::plugins::internal::systems::world_systems::{setup_camera, setup_kanoko};
 

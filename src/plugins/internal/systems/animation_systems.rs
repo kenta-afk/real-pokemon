@@ -1,6 +1,18 @@
 use bevy::prelude::*;
 
 use super::components::animation::{AnimationConfig, Character, Direction};
+use super::world_systems::Obstacle;
+
+/// Simple AABB collision detection
+fn check_collision(pos1: Vec3, size1: Vec2, pos2: Vec3, size2: Vec2) -> bool {
+    let half_size1 = size1 / 2.0;
+    let half_size2 = size2 / 2.0;
+    
+    pos1.x - half_size1.x < pos2.x + half_size2.x &&
+    pos1.x + half_size1.x > pos2.x - half_size2.x &&
+    pos1.y - half_size1.y < pos2.y + half_size2.y &&
+    pos1.y + half_size1.y > pos2.y - half_size2.y
+}
 
 // This system changes the character's direction and animation when arrow keys are pressed
 pub fn change_direction(
@@ -58,36 +70,56 @@ pub fn change_direction(
     }
 }
 
-// This system handles character movement
+// This system handles character movement with collision detection
 pub fn move_character(
     time: Res<Time>,
     input: Res<ButtonInput<KeyCode>>,
-    mut query: Query<&mut Transform, With<Character>>
+    mut character_query: Query<&mut Transform, With<Character>>,
+    obstacle_query: Query<(&Transform, &Obstacle), (Without<Character>, With<Obstacle>)>
 ) {
-    for mut transform in &mut query {
+    for mut transform in &mut character_query {
         let movement_speed = 200.0; // pixels per second
         let delta_time = time.delta().as_secs_f32();
+        let character_size = Vec2::new(20.0, 20.0); // Smaller character collision box
+        
+        // Store original position
+        let original_position = transform.translation;
+        let mut new_position = original_position;
 
+        // Calculate potential new position based on input
         if input.pressed(KeyCode::ArrowRight) {
-            transform.translation.x += movement_speed * delta_time;
+            new_position.x += movement_speed * delta_time;
         }
         if input.pressed(KeyCode::ArrowLeft) {
-            transform.translation.x -= movement_speed * delta_time;
+            new_position.x -= movement_speed * delta_time;
         }
         if input.pressed(KeyCode::ArrowUp) {
-            transform.translation.y += movement_speed * delta_time;
+            new_position.y += movement_speed * delta_time;
         }
         if input.pressed(KeyCode::ArrowDown) {
-            transform.translation.y -= movement_speed * delta_time;
+            new_position.y -= movement_speed * delta_time;
         }
 
-        // Optional: Add boundaries to keep character on screen
+        // Check collision with obstacles
+        let mut collision_detected = false;
+        for (obstacle_transform, obstacle) in &obstacle_query {
+            if check_collision(new_position, character_size, obstacle_transform.translation, obstacle.size) {
+                collision_detected = true;
+                break;
+            }
+        }
+
+        // Only move if no collision detected
+        if !collision_detected {
+            transform.translation = new_position;
+        }
+
+        // Apply boundaries to keep character on screen
         transform.translation.x = transform.translation.x.clamp(-500.0, 500.0);
-        transform.translation.y = transform.translation.y.clamp(-280.0, 350.0); // Adjusted for fence collision
+        transform.translation.y = transform.translation.y.clamp(-280.0, 350.0);
     }
 }
 
-// This system makes the camera follow the character
 pub fn camera_follow(
     character_query: Query<&Transform, (With<Character>, Without<Camera2d>)>,
     mut camera_query: Query<&mut Transform, (With<Camera2d>, Without<Character>)>
@@ -179,7 +211,7 @@ pub fn setup_characters(
             }),
             ..default()
         },
-        Transform::from_scale(Vec3::splat(3.0)).with_translation(Vec3::new(0.0, 0.0, 0.0)),
+        Transform::from_scale(Vec3::splat(2.0)).with_translation(Vec3::new(0.0, -100.0, 0.0)), // Move player down a bit
         idle_sprite,
         character
     ));
