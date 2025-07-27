@@ -83,7 +83,7 @@ pub fn move_character(
 
         // Optional: Add boundaries to keep character on screen
         transform.translation.x = transform.translation.x.clamp(-500.0, 500.0);
-        transform.translation.y = transform.translation.y.clamp(-350.0, 350.0);
+        transform.translation.y = transform.translation.y.clamp(-280.0, 350.0); // Adjusted for fence collision
     }
 }
 
