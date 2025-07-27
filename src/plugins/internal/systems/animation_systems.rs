@@ -98,12 +98,12 @@ pub fn camera_follow(
             // Smoothly follow the character
             let target_position = character_transform.translation;
             let lerp_factor = 0.1; // Adjust this for smoother/faster following
-            
-            camera_transform.translation.x = camera_transform.translation.x 
+
+            camera_transform.translation.x = camera_transform.translation.x
                 + (target_position.x - camera_transform.translation.x) * lerp_factor;
-            camera_transform.translation.y = camera_transform.translation.y 
+            camera_transform.translation.y = camera_transform.translation.y
                 + (target_position.y - camera_transform.translation.y) * lerp_factor;
-            
+
             // Keep camera's Z position unchanged for proper layering
             camera_transform.translation.z = 0.0;
         }
