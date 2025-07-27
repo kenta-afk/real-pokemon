@@ -87,6 +87,29 @@ pub fn move_character(
     }
 }
 
+// This system makes the camera follow the character
+pub fn camera_follow(
+    character_query: Query<&Transform, (With<Character>, Without<Camera2d>)>,
+    mut camera_query: Query<&mut Transform, (With<Camera2d>, Without<Character>)>
+) {
+    // Get the first character (main player)
+    if let Some(character_transform) = character_query.iter().next() {
+        for mut camera_transform in camera_query.iter_mut() {
+            // Smoothly follow the character
+            let target_position = character_transform.translation;
+            let lerp_factor = 0.1; // Adjust this for smoother/faster following
+            
+            camera_transform.translation.x = camera_transform.translation.x 
+                + (target_position.x - camera_transform.translation.x) * lerp_factor;
+            camera_transform.translation.y = camera_transform.translation.y 
+                + (target_position.y - camera_transform.translation.y) * lerp_factor;
+            
+            // Keep camera's Z position unchanged for proper layering
+            camera_transform.translation.z = 0.0;
+        }
+    }
+}
+
 // This system loops through all the sprites in the `TextureAtlas`, from  `first_sprite_index` to
 // `last_sprite_index` (both defined in `AnimationConfig`).
 pub fn execute_animations(
