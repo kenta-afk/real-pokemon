@@ -58,6 +58,35 @@ pub fn change_direction(
     }
 }
 
+// This system handles character movement
+pub fn move_character(
+    time: Res<Time>,
+    input: Res<ButtonInput<KeyCode>>,
+    mut query: Query<&mut Transform, With<Character>>
+) {
+    for mut transform in &mut query {
+        let movement_speed = 200.0; // pixels per second
+        let delta_time = time.delta().as_secs_f32();
+
+        if input.pressed(KeyCode::ArrowRight) {
+            transform.translation.x += movement_speed * delta_time;
+        }
+        if input.pressed(KeyCode::ArrowLeft) {
+            transform.translation.x -= movement_speed * delta_time;
+        }
+        if input.pressed(KeyCode::ArrowUp) {
+            transform.translation.y += movement_speed * delta_time;
+        }
+        if input.pressed(KeyCode::ArrowDown) {
+            transform.translation.y -= movement_speed * delta_time;
+        }
+
+        // Optional: Add boundaries to keep character on screen
+        transform.translation.x = transform.translation.x.clamp(-500.0, 500.0);
+        transform.translation.y = transform.translation.y.clamp(-350.0, 350.0);
+    }
+}
+
 // This system loops through all the sprites in the `TextureAtlas`, from  `first_sprite_index` to
 // `last_sprite_index` (both defined in `AnimationConfig`).
 pub fn execute_animations(
@@ -88,13 +117,11 @@ pub fn execute_animations(
     }
 }
 
-pub fn setup_sprites(
+pub fn setup_characters(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>
 ) {
-    commands.spawn(Camera2d);
-
     // Load the sprite sheet using the `AssetServer`
     let texture = asset_server.load("gabe-idle-run.png");
 
@@ -102,11 +129,11 @@ pub fn setup_sprites(
     let layout = TextureAtlasLayout::from_grid(UVec2::splat(24), 7, 4, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
 
-    // The first (left-hand) sprite runs at 20 FPS
-    let move_right_sprite = AnimationConfig::new(0, 6, 20);
-    let move_left_sprite = AnimationConfig::new(7, 13, 20);
-    let move_backward_sprite = AnimationConfig::new(14, 16, 20);
-    let move_forward_sprite = AnimationConfig::new(21, 25, 20);
+    // The first (left-hand) sprite runs at 10 FPS
+    let move_right_sprite = AnimationConfig::new(0, 6, 10);
+    let move_left_sprite = AnimationConfig::new(7, 13, 10);
+    let move_backward_sprite = AnimationConfig::new(14, 16, 10);
+    let move_forward_sprite = AnimationConfig::new(21, 25, 10);
     let idle_sprite = AnimationConfig::new(0, 0, 1);
 
     // Create a single character that can move in both directions
