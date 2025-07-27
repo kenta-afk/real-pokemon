@@ -21,7 +21,7 @@ fn check_collision(pos1: Vec3, size1: Vec2, pos2: Vec3, size2: Vec2) -> bool {
 // This system changes the character's direction and animation when arrow keys are pressed
 pub fn change_direction(
     input: Res<ButtonInput<KeyCode>>,
-    mut query: Query<(&mut Character, &mut AnimationConfig, &mut Sprite)>
+    mut query: Query<(&mut Character, &mut AnimationConfig, &mut Sprite)>,
 ) {
     for (mut character, mut animation_config, mut sprite) in &mut query {
         let mut new_direction = None;
@@ -54,7 +54,7 @@ pub fn change_direction(
                     Direction::Left => AnimationConfig::new(7, 7, 1),
                     Direction::Backward => AnimationConfig::new(14, 14, 1),
                     Direction::Forward => AnimationConfig::new(21, 21, 1),
-                    Direction::Idle => character.idle_config.clone()
+                    Direction::Idle => character.idle_config.clone(),
                 };
                 new_config = Some(idle_config);
                 character.is_moving = false;
@@ -80,7 +80,7 @@ pub fn move_character(
     input: Res<ButtonInput<KeyCode>>,
     mut character_query: Query<&mut Transform, With<Character>>,
     // ここで定義した型エイリアスを使用します。
-    obstacle_query: ObstacleQuery
+    obstacle_query: ObstacleQuery,
 ) {
     for mut transform in &mut character_query {
         let movement_speed = 200.0; // pixels per second
@@ -112,7 +112,7 @@ pub fn move_character(
                 new_position,
                 character_size,
                 obstacle_transform.translation,
-                obstacle.size
+                obstacle.size,
             ) {
                 collision_detected = true;
                 break;
@@ -132,7 +132,7 @@ pub fn move_character(
 
 pub fn camera_follow(
     character_query: Query<&Transform, (With<Character>, Without<Camera2d>)>,
-    mut camera_query: Query<&mut Transform, (With<Camera2d>, Without<Character>)>
+    mut camera_query: Query<&mut Transform, (With<Camera2d>, Without<Character>)>,
 ) {
     // Get the first character (main player)
     if let Some(character_transform) = character_query.iter().next() {
@@ -156,7 +156,7 @@ pub fn camera_follow(
 // `last_sprite_index` (both defined in `AnimationConfig`).
 pub fn execute_animations(
     time: Res<Time>,
-    mut query: Query<(&mut AnimationConfig, &mut Sprite, &Character)>
+    mut query: Query<(&mut AnimationConfig, &mut Sprite, &Character)>,
 ) {
     for (mut config, mut sprite, character) in &mut query {
         // We track how long the current sprite has been displayed for
@@ -185,7 +185,7 @@ pub fn execute_animations(
 pub fn setup_characters(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>
+    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
     // Load the sprite sheet using the `AssetServer`
     let texture = asset_server.load("gabe-idle-run.png");
@@ -209,7 +209,7 @@ pub fn setup_characters(
         move_forward_config: move_forward_sprite,
         idle_config: idle_sprite.clone(),
         current_direction: Direction::Idle,
-        is_moving: false
+        is_moving: false,
     };
 
     commands.spawn((
@@ -217,12 +217,12 @@ pub fn setup_characters(
             image: texture,
             texture_atlas: Some(TextureAtlas {
                 layout: texture_atlas_layout.clone(),
-                index: idle_sprite.first_sprite_index
+                index: idle_sprite.first_sprite_index,
             }),
             ..default()
         },
         Transform::from_scale(Vec3::splat(2.0)).with_translation(Vec3::new(0.0, -100.0, 0.0)), // Move player down a bit
         idle_sprite,
-        character
+        character,
     ));
 }

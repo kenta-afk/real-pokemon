@@ -7,7 +7,7 @@ pub struct AnimationConfig {
     pub first_sprite_index: usize,
     pub last_sprite_index: usize,
     pub fps: u8,
-    pub frame_timer: Timer
+    pub frame_timer: Timer,
 }
 
 impl AnimationConfig {
@@ -16,7 +16,7 @@ impl AnimationConfig {
             first_sprite_index: first,
             last_sprite_index: last,
             fps,
-            frame_timer: Self::timer_from_fps(fps)
+            frame_timer: Self::timer_from_fps(fps),
         }
     }
 
@@ -33,7 +33,7 @@ pub struct Character {
     pub move_forward_config: AnimationConfig,
     pub idle_config: AnimationConfig,
     pub current_direction: Direction,
-    pub is_moving: bool
+    pub is_moving: bool,
 }
 
 #[derive(Clone, Copy, PartialEq)]
@@ -42,5 +42,5 @@ pub enum Direction {
     Left,
     Backward,
     Forward,
-    Idle
+    Idle,
 }

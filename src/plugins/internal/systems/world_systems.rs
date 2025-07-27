@@ -3,14 +3,14 @@ use bevy::prelude::*;
 /// Component to mark entities as solid obstacles (trees, buildings, etc.)
 #[derive(Component)]
 pub struct Obstacle {
-    pub size: Vec2
+    pub size: Vec2,
 }
 
 /// System for setting up the camera
 pub fn setup_camera(mut commands: Commands) {
     commands.spawn((
         Camera2d,
-        Transform::from_scale(Vec3::splat(0.5)) // Zoom in by scaling camera
+        Transform::from_scale(Vec3::splat(0.5)), // Zoom in by scaling camera
     ));
 }
 
@@ -31,7 +31,7 @@ pub fn setup_kanoko(mut commands: Commands, asset_server: Res<AssetServer>) {
         Transform {
             translation: Vec3::new(-1200.0, -800.0, -12.0), // Bottom left (under left grass)
             ..default()
-        }
+        },
     ));
 
     commands.spawn((
@@ -43,7 +43,7 @@ pub fn setup_kanoko(mut commands: Commands, asset_server: Res<AssetServer>) {
         Transform {
             translation: Vec3::new(0.0, -800.0, -12.0), // Bottom center (under kanoko)
             ..default()
-        }
+        },
     ));
 
     commands.spawn((
@@ -55,7 +55,7 @@ pub fn setup_kanoko(mut commands: Commands, asset_server: Res<AssetServer>) {
         Transform {
             translation: Vec3::new(1200.0, -800.0, -12.0), // Bottom right (under right grass)
             ..default()
-        }
+        },
     ));
 
     // Create grass tiles around the main kanoko area to prevent black borders
@@ -73,7 +73,7 @@ pub fn setup_kanoko(mut commands: Commands, asset_server: Res<AssetServer>) {
         Transform {
             translation: Vec3::new(-1200.0, 0.0, -11.0), // Left of kanoko
             ..default()
-        }
+        },
     ));
 
     // Right grass
@@ -86,7 +86,7 @@ pub fn setup_kanoko(mut commands: Commands, asset_server: Res<AssetServer>) {
         Transform {
             translation: Vec3::new(1200.0, 0.0, -11.0), // Right of kanoko
             ..default()
-        }
+        },
     ));
 
     // Now create the main background for Kanoko Town
@@ -99,7 +99,7 @@ pub fn setup_kanoko(mut commands: Commands, asset_server: Res<AssetServer>) {
         Transform {
             translation: Vec3::new(0.0, 0.0, -10.0), // Far background
             ..default()
-        }
+        },
     ));
 
     // Add fence at the bottom of Kanoko Town
@@ -112,7 +112,7 @@ pub fn setup_kanoko(mut commands: Commands, asset_server: Res<AssetServer>) {
         Transform {
             translation: Vec3::new(0.0, -382.0, -9.0), // Bottom of kanoko area, in front of background
             ..default()
-        }
+        },
     ));
 
     let house_texture = asset_server.load("house.png");
@@ -128,8 +128,8 @@ pub fn setup_kanoko(mut commands: Commands, asset_server: Res<AssetServer>) {
             ..default()
         },
         Obstacle {
-            size: Vec2::new(140.0, 140.0) // Even smaller house collision box for tighter movement
-        }
+            size: Vec2::new(140.0, 140.0), // Even smaller house collision box for tighter movement
+        },
     ));
 
     commands.spawn((
@@ -143,8 +143,8 @@ pub fn setup_kanoko(mut commands: Commands, asset_server: Res<AssetServer>) {
             ..default()
         },
         Obstacle {
-            size: Vec2::new(140.0, 140.0) // Smaller collision box for tighter movement
-        }
+            size: Vec2::new(140.0, 140.0), // Smaller collision box for tighter movement
+        },
     ));
 
     commands.spawn((
@@ -158,8 +158,8 @@ pub fn setup_kanoko(mut commands: Commands, asset_server: Res<AssetServer>) {
             ..default()
         },
         Obstacle {
-            size: Vec2::new(140.0, 140.0) // Smaller collision box for tighter movement
-        }
+            size: Vec2::new(140.0, 140.0), // Smaller collision box for tighter movement
+        },
     ));
 
     // Load the tree texture
@@ -223,8 +223,8 @@ pub fn setup_kanoko(mut commands: Commands, asset_server: Res<AssetServer>) {
                 ..default()
             },
             Obstacle {
-                size: Vec2::new(20.0, 20.0) // Smaller tree collision box
-            }
+                size: Vec2::new(20.0, 20.0), // Smaller tree collision box
+            },
         ));
     }
 }
