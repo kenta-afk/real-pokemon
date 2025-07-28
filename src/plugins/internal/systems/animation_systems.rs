@@ -1,228 +1,135 @@
 use bevy::prelude::*;
 
 use super::components::animation::{AnimationConfig, Character, Direction};
-use super::world_systems::Obstacle;
+use super::components::obstacle::Obstacle;
 
-// 型の複雑さの警告を解消するために、Query型にエイリアスを定義します。
 type ObstacleQuery<'w, 's> =
     Query<'w, 's, (&'static Transform, &'static Obstacle), (Without<Character>, With<Obstacle>)>;
 
-/// Simple AABB collision detection
 fn check_collision(pos1: Vec3, size1: Vec2, pos2: Vec3, size2: Vec2) -> bool {
-    let half_size1 = size1 / 2.0;
-    let half_size2 = size2 / 2.0;
-
-    pos1.x - half_size1.x < pos2.x + half_size2.x
-        && pos1.x + half_size1.x > pos2.x - half_size2.x
-        && pos1.y - half_size1.y < pos2.y + half_size2.y
-        && pos1.y + half_size1.y > pos2.y - half_size2.y
+    let (h1, h2) = (size1 / 2.0, size2 / 2.0);
+    pos1.x - h1.x < pos2.x + h2.x
+        && pos1.x + h1.x > pos2.x - h2.x
+        && pos1.y - h1.y < pos2.y + h2.y
+        && pos1.y + h1.y > pos2.y - h2.y
 }
 
-// This system changes the character's direction and animation when arrow keys are pressed
 pub fn change_direction(
     input: Res<ButtonInput<KeyCode>>,
     mut query: Query<(&mut Character, &mut AnimationConfig, &mut Sprite)>,
 ) {
-    for (mut character, mut animation_config, mut sprite) in &mut query {
-        let mut new_direction = None;
-        let mut new_config = None;
-
-        // Check if any movement key is pressed
-        if input.pressed(KeyCode::ArrowRight) {
-            new_direction = Some(Direction::Right);
-            new_config = Some(character.move_right_config.clone());
-            character.is_moving = true;
-        } else if input.pressed(KeyCode::ArrowLeft) {
-            new_direction = Some(Direction::Left);
-            new_config = Some(character.move_left_config.clone());
-            character.is_moving = true;
-        } else if input.pressed(KeyCode::ArrowUp) {
-            new_direction = Some(Direction::Forward);
-            new_config = Some(character.move_forward_config.clone());
-            character.is_moving = true;
-        } else if input.pressed(KeyCode::ArrowDown) {
-            new_direction = Some(Direction::Backward);
-            new_config = Some(character.move_backward_config.clone());
-            character.is_moving = true;
-        } else {
-            // No keys pressed - go to idle
-            if character.is_moving {
-                new_direction = Some(Direction::Idle);
-                // Set idle frame based on the last direction
-                let idle_config = match character.current_direction {
-                    Direction::Right => AnimationConfig::new(0, 0, 1),
-                    Direction::Left => AnimationConfig::new(7, 7, 1),
-                    Direction::Backward => AnimationConfig::new(14, 14, 1),
-                    Direction::Forward => AnimationConfig::new(21, 21, 1),
-                    Direction::Idle => character.idle_config.clone(),
-                };
-                new_config = Some(idle_config);
-                character.is_moving = false;
+    for (mut chara, mut anim_cfg, mut sprite) in &mut query {
+        let (dir, cfg) = match (
+            input.pressed(KeyCode::ArrowRight),
+            input.pressed(KeyCode::ArrowLeft),
+            input.pressed(KeyCode::ArrowUp),
+            input.pressed(KeyCode::ArrowDown),
+        ) {
+            (true, _, _, _) => (Direction::Right, chara.move_right_config.clone()),
+            (_, true, _, _) => (Direction::Left, chara.move_left_config.clone()),
+            (_, _, true, _) => (Direction::Forward, chara.move_forward_config.clone()),
+            (_, _, _, true) => (Direction::Backward, chara.move_backward_config.clone()),
+            _ => {
+                if chara.is_moving {
+                    chara.is_moving = false;
+                    let idle = match chara.current_direction {
+                        Direction::Right => AnimationConfig::new(0, 0, 1),
+                        Direction::Left => AnimationConfig::new(7, 7, 1),
+                        Direction::Backward => AnimationConfig::new(14, 14, 1),
+                        Direction::Forward => AnimationConfig::new(21, 21, 1),
+                        Direction::Idle => chara.idle_config.clone(),
+                    };
+                    (Direction::Idle, idle)
+                } else {
+                    continue;
+                }
             }
-        }
+        };
 
-        // Update direction and animation config if changed
-        if let (Some(direction), Some(config)) = (new_direction, new_config)
-            && character.current_direction != direction
-        {
-            character.current_direction = direction;
-            *animation_config = config;
+        if chara.current_direction != dir {
+            chara.current_direction = dir;
+            chara.is_moving = dir != Direction::Idle;
+            *anim_cfg = cfg;
             if let Some(atlas) = &mut sprite.texture_atlas {
-                atlas.index = animation_config.first_sprite_index;
+                atlas.index = anim_cfg.first_sprite_index;
             }
         }
     }
 }
 
-// This system handles character movement with collision detection
 pub fn move_character(
     time: Res<Time>,
     input: Res<ButtonInput<KeyCode>>,
-    mut character_query: Query<&mut Transform, With<Character>>,
-    // ここで定義した型エイリアスを使用します。
-    obstacle_query: ObstacleQuery,
+    mut q_char: Query<&mut Transform, With<Character>>,
+    obstacles: ObstacleQuery,
 ) {
-    for mut transform in &mut character_query {
-        let movement_speed = 200.0; // pixels per second
-        let delta_time = time.delta().as_secs_f32();
-        let character_size = Vec2::new(20.0, 20.0); // Smaller character collision box
+    let delta = time.delta_secs();
+    let speed = 150.0;
+    let size = Vec2::splat(20.0);
 
-        // Store original position
-        let original_position = transform.translation;
-        let mut new_position = original_position;
+    for mut transform in &mut q_char {
+        let mut new_pos = transform.translation;
 
-        // Calculate potential new position based on input
         if input.pressed(KeyCode::ArrowRight) {
-            new_position.x += movement_speed * delta_time;
+            new_pos.x += speed * delta;
         }
         if input.pressed(KeyCode::ArrowLeft) {
-            new_position.x -= movement_speed * delta_time;
+            new_pos.x -= speed * delta;
         }
         if input.pressed(KeyCode::ArrowUp) {
-            new_position.y += movement_speed * delta_time;
+            new_pos.y += speed * delta;
         }
         if input.pressed(KeyCode::ArrowDown) {
-            new_position.y -= movement_speed * delta_time;
+            new_pos.y -= speed * delta;
         }
 
-        // Check collision with obstacles
-        let mut collision_detected = false;
-        for (obstacle_transform, obstacle) in &obstacle_query {
-            if check_collision(
-                new_position,
-                character_size,
-                obstacle_transform.translation,
-                obstacle.size,
-            ) {
-                collision_detected = true;
-                break;
-            }
+        let collision = obstacles
+            .iter()
+            .any(|(obs_tf, obs)| check_collision(new_pos, size, obs_tf.translation, obs.size));
+
+        if !collision {
+            transform.translation = new_pos;
         }
 
-        // Only move if no collision detected
-        if !collision_detected {
-            transform.translation = new_position;
-        }
-
-        // Apply boundaries to keep character on screen
         transform.translation.x = transform.translation.x.clamp(-500.0, 500.0);
         transform.translation.y = transform.translation.y.clamp(-280.0, 350.0);
     }
 }
 
 pub fn camera_follow(
-    character_query: Query<&Transform, (With<Character>, Without<Camera2d>)>,
-    mut camera_query: Query<&mut Transform, (With<Camera2d>, Without<Character>)>,
+    q_chara: Query<&Transform, (With<Character>, Without<Camera2d>)>,
+    mut q_cam: Query<&mut Transform, (With<Camera2d>, Without<Character>)>,
 ) {
-    // Get the first character (main player)
-    if let Some(character_transform) = character_query.iter().next() {
-        for mut camera_transform in camera_query.iter_mut() {
-            // Smoothly follow the character
-            let target_position = character_transform.translation;
-            let lerp_factor = 0.1; // Adjust this for smoother/faster following
+    if let Some(chara_tf) = q_chara.iter().next() {
+        for mut cam_tf in &mut q_cam {
+            let target = chara_tf.translation;
+            let factor = 0.1;
 
-            camera_transform.translation.x = camera_transform.translation.x
-                + (target_position.x - camera_transform.translation.x) * lerp_factor;
-            camera_transform.translation.y = camera_transform.translation.y
-                + (target_position.y - camera_transform.translation.y) * lerp_factor;
-
-            // Keep camera's Z position unchanged for proper layering
-            camera_transform.translation.z = 0.0;
+            cam_tf.translation.x += (target.x - cam_tf.translation.x) * factor;
+            cam_tf.translation.y += (target.y - cam_tf.translation.y) * factor;
+            cam_tf.translation.z = 0.0;
         }
     }
 }
 
-// This system loops through all the sprites in the `TextureAtlas`, from  `first_sprite_index` to
-// `last_sprite_index` (both defined in `AnimationConfig`).
 pub fn execute_animations(
     time: Res<Time>,
     mut query: Query<(&mut AnimationConfig, &mut Sprite, &Character)>,
 ) {
-    for (mut config, mut sprite, character) in &mut query {
-        // We track how long the current sprite has been displayed for
-        config.frame_timer.tick(time.delta());
+    for (mut cfg, mut sprite, chara) in &mut query {
+        cfg.frame_timer.tick(time.delta());
 
-        // If it has been displayed for the user-defined amount of time (fps)...
-        if config.frame_timer.just_finished()
-            && let Some(atlas) = &mut sprite.texture_atlas
-        {
-            if atlas.index == config.last_sprite_index {
-                // If we're moving, loop the animation, otherwise stay on first frame
-                if character.is_moving {
-                    atlas.index = config.first_sprite_index;
-                    config.frame_timer = AnimationConfig::timer_from_fps(config.fps);
-                }
-            } else {
-                // ...and it is NOT the last frame, then we move to the next frame...
-                atlas.index += 1;
-                // ...and reset the frame timer to start counting all over again
-                config.frame_timer = AnimationConfig::timer_from_fps(config.fps);
-            }
+        if !cfg.frame_timer.just_finished() {
+            continue;
+        }
+
+        if let Some(atlas) = &mut sprite.texture_atlas {
+            atlas.index = match (atlas.index == cfg.last_sprite_index, chara.is_moving) {
+                (true, true) => cfg.first_sprite_index,
+                (true, false) => atlas.index,
+                (false, _) => atlas.index + 1,
+            };
+            cfg.frame_timer = AnimationConfig::timer_from_fps(cfg.fps);
         }
     }
-}
-
-pub fn setup_characters(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
-) {
-    // Load the sprite sheet using the `AssetServer`
-    let texture = asset_server.load("gabe-idle-run.png");
-
-    // The sprite sheet has 7 sprites arranged in a row, and they are all 24px x 24px
-    let layout = TextureAtlasLayout::from_grid(UVec2::splat(24), 7, 4, None, None);
-    let texture_atlas_layout = texture_atlas_layouts.add(layout);
-
-    // The first (left-hand) sprite runs at 10 FPS
-    let move_right_sprite = AnimationConfig::new(0, 6, 10);
-    let move_left_sprite = AnimationConfig::new(7, 13, 10);
-    let move_backward_sprite = AnimationConfig::new(14, 16, 10);
-    let move_forward_sprite = AnimationConfig::new(21, 25, 10);
-    let idle_sprite = AnimationConfig::new(0, 0, 1);
-
-    // Create a single character that can move in both directions
-    let character = Character {
-        move_right_config: move_right_sprite,
-        move_left_config: move_left_sprite,
-        move_backward_config: move_backward_sprite,
-        move_forward_config: move_forward_sprite,
-        idle_config: idle_sprite.clone(),
-        current_direction: Direction::Idle,
-        is_moving: false,
-    };
-
-    commands.spawn((
-        Sprite {
-            image: texture,
-            texture_atlas: Some(TextureAtlas {
-                layout: texture_atlas_layout.clone(),
-                index: idle_sprite.first_sprite_index,
-            }),
-            ..default()
-        },
-        Transform::from_scale(Vec3::splat(2.0)).with_translation(Vec3::new(0.0, -100.0, 0.0)), // Move player down a bit
-        idle_sprite,
-        character,
-    ));
 }
