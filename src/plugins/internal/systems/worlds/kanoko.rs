@@ -107,7 +107,7 @@ pub fn setup_kanoko(mut commands: Commands, asset_server: Res<AssetServer>) {
             ..default()
         },
         Obstacle {
-            size: Vec2::new(340.0, 100.0),
+            size: Vec2::new(340.0, 300.0),
         },
     ));
 
