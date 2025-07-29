@@ -1,10 +1,38 @@
+use bevy::audio::{AudioPlayer, AudioSource, PlaybackSettings, Volume};
 use bevy::prelude::*;
 
 use crate::plugins::internal::systems::components::obstacle::Obstacle;
 
 /// System for setting up the world environment (trees, buildings, etc.)
+const KANOKO_RECT: (Vec2, Vec2) = (Vec2::new(0.0, 0.0), Vec2::new(256.0, 256.0));
+
+#[derive(Resource, Default, PartialEq, Eq)]
+pub enum Area {
+    #[default]
+    Other,
+    KanokoTown,
+}
+
+#[derive(Resource)]
+pub struct KanokoBgmHandle(pub Handle<AudioSource>);
+
+#[derive(Component)]
+pub struct Player;
+
+#[derive(Component)]
+pub struct KanokoBgmTag;
+
 pub fn setup_kanoko(mut commands: Commands, asset_server: Res<AssetServer>) {
-    // ヘルパー関数を使わず、直接commands.spawnで設置
+    // BGMリソース初期化
+    let kanoko_bgm = asset_server.load("kanoko_town/output.ogg");
+    commands.insert_resource(KanokoBgmHandle(kanoko_bgm));
+    commands.insert_resource(Area::Other);
+    // プレイヤーの初期位置（仮）
+    commands.spawn((
+        Player,
+        Transform::from_xyz(100.0, 100.0, 0.0),
+        GlobalTransform::default(),
+    ));
 
     // sea, grass の配置座標リスト
     let sea_texture = asset_server.load("utils/sea.png");
@@ -155,4 +183,43 @@ pub fn setup_kanoko(mut commands: Commands, asset_server: Res<AssetServer>) {
             },
         ));
     }
+}
+
+pub fn kanoko_bgm_system(
+    mut commands: Commands,
+    player_query: Query<&Transform, With<Player>>,
+    kanoko_bgm: Res<KanokoBgmHandle>,
+    mut area: ResMut<Area>,
+    audio_players: Query<Entity, (With<AudioPlayer>, With<KanokoBgmTag>)>,
+) {
+    let player_pos = player_query.iter().next().map(|t| t.translation.truncate());
+    let in_kanoko = player_pos.is_some_and(is_in_kanoko);
+    match (in_kanoko, &*area) {
+        (true, Area::Other) => {
+            // カノコタウンに入ったのでBGM再生
+            commands.spawn((
+                AudioPlayer(kanoko_bgm.0.clone()),
+                PlaybackSettings {
+                    mode: bevy::audio::PlaybackMode::Loop,
+                    volume: Volume::Linear(1.0),
+                    ..default()
+                },
+                KanokoBgmTag,
+            ));
+            *area = Area::KanokoTown;
+        }
+        (false, Area::KanokoTown) => {
+            // カノコタウンから出たのでBGM停止
+            for e in audio_players.iter() {
+                commands.entity(e).despawn();
+            }
+            *area = Area::Other;
+        }
+        _ => {}
+    }
+}
+
+fn is_in_kanoko(pos: Vec2) -> bool {
+    let (min, max) = KANOKO_RECT;
+    pos.x >= min.x && pos.x <= max.x && pos.y >= min.y && pos.y <= max.y
 }

@@ -5,7 +5,7 @@ use crate::plugins::internal::systems::animation_systems::{
 };
 use crate::plugins::internal::systems::camera_systems::setup_camera;
 use crate::plugins::internal::systems::character_systems::setup_characters;
-use crate::plugins::internal::systems::worlds::kanoko::setup_kanoko;
+use crate::plugins::internal::systems::worlds::kanoko::{kanoko_bgm_system, setup_kanoko};
 
 pub struct AnimationPlugin;
 
@@ -19,6 +19,7 @@ impl Plugin for AnimationPlugin {
                     change_direction,
                     move_character,
                     camera_follow,
+                    kanoko_bgm_system,
                 ),
             );
     }
