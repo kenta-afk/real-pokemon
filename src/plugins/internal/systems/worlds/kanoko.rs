@@ -4,26 +4,7 @@ use crate::plugins::internal::systems::components::obstacle::Obstacle;
 
 /// System for setting up the world environment (trees, buildings, etc.)
 pub fn setup_kanoko(mut commands: Commands, asset_server: Res<AssetServer>) {
-    // ヘルパー関数: 汎用的なスプライト生成
-    fn spawn_sprite(
-        commands: &mut Commands,
-        image: Handle<Image>,
-        size: Option<Vec2>,
-        translation: Vec3,
-        z: f32,
-    ) {
-        commands.spawn((
-            Sprite {
-                image,
-                custom_size: size,
-                ..default()
-            },
-            Transform {
-                translation: Vec3::new(translation.x, translation.y, z),
-                ..default()
-            },
-        ));
-    }
+    // ヘルパー関数を使わず、直接commands.spawnで設置
 
     // sea, grass の配置座標リスト
     let sea_texture = asset_server.load("utils/sea.png");
@@ -34,43 +15,73 @@ pub fn setup_kanoko(mut commands: Commands, asset_server: Res<AssetServer>) {
         Vec3::new(1200.0, -800.0, 0.0),
     ];
     for pos in sea_positions.iter() {
-        spawn_sprite(
-            &mut commands,
-            sea_texture.clone(),
-            Some(sea_size),
-            *pos,
-            -12.0,
-        );
+        commands.spawn((
+            Sprite {
+                image: sea_texture.clone(),
+                custom_size: Some(sea_size),
+                ..default()
+            },
+            Transform {
+                translation: Vec3::new(pos.x, pos.y, -12.0),
+                ..default()
+            },
+        ));
     }
 
     let grass_texture = asset_server.load("utils/grass.png");
     let grass_size = Vec2::new(1200.0, 800.0);
     let grass_positions = [Vec3::new(-1200.0, 0.0, 0.0), Vec3::new(1200.0, 0.0, 0.0)];
     for pos in grass_positions.iter() {
-        spawn_sprite(
-            &mut commands,
-            grass_texture.clone(),
-            Some(grass_size),
-            *pos,
-            -11.0,
-        );
+        commands.spawn((
+            Sprite {
+                image: grass_texture.clone(),
+                custom_size: Some(grass_size),
+                ..default()
+            },
+            Transform {
+                translation: Vec3::new(pos.x, pos.y, -11.0),
+                ..default()
+            },
+        ));
     }
 
-    // メイン背景・フェンスもspawn_spriteで
-    spawn_sprite(
-        &mut commands,
-        asset_server.load("kanoko_town/kanoko.png"),
-        Some(Vec2::new(1200.0, 800.0)),
-        Vec3::ZERO,
-        -10.0,
-    );
-    spawn_sprite(
-        &mut commands,
-        asset_server.load("kanoko_town/fence.png"),
-        Some(Vec2::new(1050.0, 600.0)),
-        Vec3::new(0.0, -382.0, 0.0),
-        -9.0,
-    );
+    // メイン背景・フェンスも直接spawn
+    commands.spawn((
+        Sprite {
+            image: asset_server.load("kanoko_town/kanoko.png"),
+            custom_size: Some(Vec2::new(1200.0, 800.0)),
+            ..default()
+        },
+        Transform {
+            translation: Vec3::new(0.0, 0.0, -10.0),
+            ..default()
+        },
+    ));
+    commands.spawn((
+        Sprite {
+            image: asset_server.load("kanoko_town/fence.png"),
+            custom_size: Some(Vec2::new(1050.0, 600.0)),
+            ..default()
+        },
+        Transform {
+            translation: Vec3::new(0.0, -382.0, -9.0),
+            ..default()
+        },
+    ));
+    commands.spawn((
+        Sprite {
+            image: asset_server.load("kanoko_town/araragi's_research_institute.png"),
+            custom_size: Some(Vec2::new(600.0, 600.0)),
+            ..default()
+        },
+        Transform {
+            translation: Vec3::new(-250.0, 280.0, -8.0),
+            ..default()
+        },
+        Obstacle {
+            size: Vec2::new(340.0, 100.0),
+        },
+    ));
 
     // house配置もループでまとめる
     let house_texture = asset_server.load("kanoko_town/house.png");
