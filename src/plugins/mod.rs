@@ -1,2 +1,2 @@
 pub mod animation_plugin;
-pub mod internal;
+pub mod systems;

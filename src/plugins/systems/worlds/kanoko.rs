@@ -1,7 +1,7 @@
 use bevy::audio::{AudioPlayer, AudioSource, PlaybackSettings, Volume};
 use bevy::prelude::*;
 
-use crate::plugins::internal::systems::components::obstacle::Obstacle;
+use crate::plugins::systems::components::obstacle::Obstacle;
 
 /// System for setting up the world environment (trees, buildings, etc.)
 const KANOKO_RECT: (Vec2, Vec2) = (Vec2::new(0.0, 0.0), Vec2::new(256.0, 256.0));
