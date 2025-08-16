@@ -1,2 +1,3 @@
-pub mod animation_plugin;
-pub mod systems;
+pub mod camera_plugin;
+pub mod character_plugin;
+pub mod kanoko_plugin;

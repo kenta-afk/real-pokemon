@@ -3,6 +3,6 @@ max_width = 100
 tab_spaces = 4
 brace_style = "PreferSameLine"
 indent_style = "Block"
-imports_granularity = "Module"
+imports_granularity = "Crate"
 group_imports = "StdExternalCrate"
 trailing_comma = "Vertical"

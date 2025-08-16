@@ -1,7 +1,9 @@
 use bevy::prelude::*;
 
-use super::components::animation::{AnimationConfig, Character, Direction};
-use super::components::obstacle::Obstacle;
+use crate::entities::{
+    animation::{AnimationConfig, Character, Direction},
+    obstacle::Obstacle,
+};
 
 type ObstacleQuery<'w, 's> =
     Query<'w, 's, (&'static Transform, &'static Obstacle), (Without<Character>, With<Obstacle>)>;

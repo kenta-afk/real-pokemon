@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::plugins::systems::components::animation::{AnimationConfig, Character, Direction};
+use crate::entities::animation::{AnimationConfig, Character, Direction};
 
 pub fn setup_characters(
     mut commands: Commands,

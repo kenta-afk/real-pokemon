@@ -1,26 +1,12 @@
-use bevy::audio::{AudioPlayer, AudioSource, PlaybackSettings, Volume};
-use bevy::prelude::*;
+use bevy::{
+    audio::{AudioPlayer, PlaybackSettings, Volume},
+    prelude::*,
+};
 
-use crate::plugins::systems::components::obstacle::Obstacle;
-
-/// System for setting up the world environment (trees, buildings, etc.)
-const KANOKO_RECT: (Vec2, Vec2) = (Vec2::new(0.0, 0.0), Vec2::new(256.0, 256.0));
-
-#[derive(Resource, Default, PartialEq, Eq)]
-pub enum Area {
-    #[default]
-    Other,
-    KanokoTown,
-}
-
-#[derive(Resource)]
-pub struct KanokoBgmHandle(pub Handle<AudioSource>);
-
-#[derive(Component)]
-pub struct Player;
-
-#[derive(Component)]
-pub struct KanokoBgmTag;
+use crate::entities::{
+    kanoko::{Area, KANOKO_RECT, KanokoBgmHandle, KanokoBgmTag, Player},
+    obstacle::Obstacle,
+};
 
 pub fn setup_kanoko(mut commands: Commands, asset_server: Res<AssetServer>) {
     // BGMリソース初期化
