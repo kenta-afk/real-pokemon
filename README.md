@@ -137,10 +137,6 @@ Town layout and object placement configured in `src/systems/worlds/kanoko.rs`:
 - Sprite batching for improved draw calls
 - Asset streaming for memory management
 
-## 📄 License
-
-This project is open source. Please check the license file for details.
-
 ## 🙏 Acknowledgments
 
 - [Bevy Engine](https://bevyengine.org/) - Amazing Rust game engine
