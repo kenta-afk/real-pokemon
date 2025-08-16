@@ -38,7 +38,7 @@ pub fn setup_kanoko(mut commands: Commands, asset_server: Res<AssetServer>) {
                 ..default()
             },
             Transform {
-                translation: Vec3::new(pos.x, pos.y, -12.0),
+                translation: Vec3::new(pos.x, pos.y, -11.0),
                 ..default()
             },
         ));
@@ -91,11 +91,11 @@ pub fn setup_kanoko(mut commands: Commands, asset_server: Res<AssetServer>) {
             ..default()
         },
         Transform {
-            translation: Vec3::new(-250.0, 280.0, -8.0),
+            translation: Vec3::new(-250.0, 280.0, -9.0),
             ..default()
         },
         Obstacle {
-            size: Vec2::new(340.0, 300.0),
+            size: Vec2::new(300.0, 130.0),
         },
     ));
 
@@ -116,7 +116,7 @@ pub fn setup_kanoko(mut commands: Commands, asset_server: Res<AssetServer>) {
                 ..default()
             },
             Transform {
-                translation: Vec3::new(pos.x, pos.y, -8.0),
+                translation: Vec3::new(pos.x, pos.y, -9.0),
                 ..default()
             },
             Obstacle {
