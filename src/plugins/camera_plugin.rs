@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::systems::{animation_systems::camera_follow, camera_systems::setup_camera};
+use crate::systems::camera_systems::{camera_follow, setup_camera};
 
 pub struct CameraPlugin;
 
