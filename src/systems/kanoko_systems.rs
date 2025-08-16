@@ -4,14 +4,16 @@ use bevy::{
 };
 
 use crate::entities::{
-    kanoko::{Area, KANOKO_RECT, KanokoBgmHandle, KanokoBgmTag, Player},
+    kanoko::{Area, BgmHandles, BgmTag, BgmType, KANOKO_RECT, Player},
     obstacle::Obstacle,
 };
 
 pub fn setup_kanoko(mut commands: Commands, asset_server: Res<AssetServer>) {
     // BGMリソース初期化
     let kanoko_bgm = asset_server.load("kanoko_town/output.ogg");
-    commands.insert_resource(KanokoBgmHandle(kanoko_bgm));
+    commands.insert_resource(BgmHandles {
+        kanoko_town: kanoko_bgm,
+    });
     commands.insert_resource(Area::Other);
     // プレイヤーの初期位置（仮）
     commands.spawn((
@@ -174,9 +176,9 @@ pub fn setup_kanoko(mut commands: Commands, asset_server: Res<AssetServer>) {
 pub fn kanoko_bgm_system(
     mut commands: Commands,
     player_query: Query<&Transform, With<Player>>,
-    kanoko_bgm: Res<KanokoBgmHandle>,
+    bgm_handles: Res<BgmHandles>,
     mut area: ResMut<Area>,
-    audio_players: Query<Entity, (With<AudioPlayer>, With<KanokoBgmTag>)>,
+    audio_players: Query<Entity, (With<AudioPlayer>, With<BgmTag>)>,
 ) {
     let player_pos = player_query.iter().next().map(|t| t.translation.truncate());
     let in_kanoko = player_pos.is_some_and(is_in_kanoko);
@@ -184,18 +186,19 @@ pub fn kanoko_bgm_system(
         (true, Area::Other) => {
             // カノコタウンに入ったのでBGM再生
             commands.spawn((
-                AudioPlayer(kanoko_bgm.0.clone()),
+                AudioPlayer(bgm_handles.kanoko_town.clone()),
                 PlaybackSettings {
                     mode: bevy::audio::PlaybackMode::Loop,
                     volume: Volume::Linear(1.0),
                     ..default()
                 },
-                KanokoBgmTag,
+                BgmTag::new(BgmType::KanokoTown),
             ));
             *area = Area::KanokoTown;
         }
         (false, Area::KanokoTown) => {
             // カノコタウンから出たのでBGM停止
+            // 特定のBGMタイプのみ停止することも可能
             for e in audio_players.iter() {
                 commands.entity(e).despawn();
             }
