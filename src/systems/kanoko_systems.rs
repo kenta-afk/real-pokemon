@@ -1,21 +1,14 @@
-use bevy::{
-    audio::{AudioPlayer, PlaybackSettings, Volume},
-    prelude::*,
-};
+use bevy::prelude::*;
 
 use crate::entities::{
-    area::{Area, KANOKO_RECT, Player},
-    bgm::{BgmHandles, BgmTag, BgmType},
+    area::{Area, Player},
     obstacle::Obstacle,
 };
 
 pub fn setup_kanoko(mut commands: Commands, asset_server: Res<AssetServer>) {
-    // BGMリソース初期化
-    let kanoko_bgm = asset_server.load("kanoko_town/output.ogg");
-    commands.insert_resource(BgmHandles {
-        kanoko_town: kanoko_bgm,
-    });
-    commands.insert_resource(Area::Other);
+    // エリア設定
+    commands.insert_resource(Area::KanokoTown);
+
     // プレイヤーの初期位置（仮）
     commands.spawn((
         Player,
@@ -172,44 +165,4 @@ pub fn setup_kanoko(mut commands: Commands, asset_server: Res<AssetServer>) {
             },
         ));
     }
-}
-
-pub fn kanoko_bgm_system(
-    mut commands: Commands,
-    player_query: Query<&Transform, With<Player>>,
-    bgm_handles: Res<BgmHandles>,
-    mut area: ResMut<Area>,
-    audio_players: Query<Entity, (With<AudioPlayer>, With<BgmTag>)>,
-) {
-    let player_pos = player_query.iter().next().map(|t| t.translation.truncate());
-    let in_kanoko = player_pos.is_some_and(is_in_kanoko);
-    match (in_kanoko, &*area) {
-        (true, Area::Other) => {
-            // カノコタウンに入ったのでBGM再生
-            commands.spawn((
-                AudioPlayer(bgm_handles.kanoko_town.clone()),
-                PlaybackSettings {
-                    mode: bevy::audio::PlaybackMode::Loop,
-                    volume: Volume::Linear(1.0),
-                    ..default()
-                },
-                BgmTag::new(BgmType::KanokoTown),
-            ));
-            *area = Area::KanokoTown;
-        }
-        (false, Area::KanokoTown) => {
-            // カノコタウンから出たのでBGM停止
-            // 特定のBGMタイプのみ停止することも可能
-            for e in audio_players.iter() {
-                commands.entity(e).despawn();
-            }
-            *area = Area::Other;
-        }
-        _ => {}
-    }
-}
-
-fn is_in_kanoko(pos: Vec2) -> bool {
-    let (min, max) = KANOKO_RECT;
-    pos.x >= min.x && pos.x <= max.x && pos.y >= min.y && pos.y <= max.y
 }

@@ -5,7 +5,8 @@ mod plugins;
 mod systems;
 
 use plugins::{
-    camera_plugin::CameraPlugin, character_plugin::CharacterPlugin, kanoko_plugin::KanokoPlugin,
+    bgm_plugin::BgmPlugin, camera_plugin::CameraPlugin, character_plugin::CharacterPlugin,
+    kanoko_plugin::KanokoPlugin,
 };
 
 fn main() {
@@ -13,6 +14,7 @@ fn main() {
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
         .add_plugins(CameraPlugin)
         .add_plugins(CharacterPlugin)
+        .add_plugins(BgmPlugin)
         .add_plugins(KanokoPlugin)
         .run();
 }
