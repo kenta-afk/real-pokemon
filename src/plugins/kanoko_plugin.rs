@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::systems::kanoko_systems::setup_kanoko;
+use crate::systems::kanokotown::kanoko_systems::setup_kanoko;
 
 pub struct KanokoPlugin;
 
