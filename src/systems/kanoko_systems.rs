@@ -4,7 +4,8 @@ use bevy::{
 };
 
 use crate::entities::{
-    kanoko::{Area, BgmHandles, BgmTag, BgmType, KANOKO_RECT, Player},
+    area::{Area, KANOKO_RECT, Player},
+    bgm::{BgmHandles, BgmTag, BgmType},
     obstacle::Obstacle,
 };
 

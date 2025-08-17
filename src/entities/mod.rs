@@ -1,3 +1,4 @@
 pub mod animation;
-pub mod kanoko;
+pub mod area;
+pub mod bgm;
 pub mod obstacle;
