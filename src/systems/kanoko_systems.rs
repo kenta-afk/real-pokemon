@@ -70,12 +70,15 @@ pub fn setup_kanoko(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn((
         Sprite {
             image: asset_server.load("kanoko_town/fence.png"),
-            custom_size: Some(Vec2::new(1050.0, 600.0)),
+            custom_size: Some(Vec2::new(1150.0, 600.0)),
             ..default()
         },
         Transform {
             translation: Vec3::new(0.0, -382.0, -9.0),
             ..default()
+        },
+        Obstacle {
+            size: Vec2::new(1150.0, 100.0),
         },
     ));
     commands.spawn((
@@ -119,36 +122,11 @@ pub fn setup_kanoko(mut commands: Commands, asset_server: Res<AssetServer>) {
         ));
     }
 
-    // tree配置もまとめる
+    // tree配置を汎用化
     let tree_texture = asset_server.load("utils/tree.png");
-    let mut tree_positions = Vec::new();
-    // Left grass area trees
-    for x in (-1800..=-600).step_by(50) {
-        let mut z_depth = -1.0;
-        for y in (-350..=400).step_by(50) {
-            tree_positions.push(Vec3::new(x as f32, y as f32, z_depth));
-            z_depth -= 0.1;
-        }
-    }
-    // Right grass area trees
-    for x in (600..=1800).step_by(50) {
-        let mut z_depth = -1.0;
-        for y in (-350..=400).step_by(50) {
-            tree_positions.push(Vec3::new(x as f32, y as f32, z_depth));
-            z_depth -= 0.1;
-        }
-    }
-    // Left/Right boundary trees
-    let mut z_depth = -1.0;
-    for y in (-350..=400).step_by(50) {
-        tree_positions.push(Vec3::new(-550.0, y as f32, z_depth));
-        z_depth -= 0.1;
-    }
-    for y in (-350..=400).step_by(50) {
-        tree_positions.push(Vec3::new(550.0, y as f32, z_depth));
-        z_depth -= 0.1;
-    }
-    // tree spawnもループで
+    let tree_positions = generate_tree_positions();
+
+    // 通常の木を配置
     for position in tree_positions {
         commands.spawn((
             Sprite {
@@ -161,8 +139,34 @@ pub fn setup_kanoko(mut commands: Commands, asset_server: Res<AssetServer>) {
                 ..default()
             },
             Obstacle {
-                size: Vec2::new(20.0, 20.0),
+                size: Vec2::new(80.0, 30.0),
             },
         ));
     }
+}
+
+/// ツリーの配置座標を生成する関数
+fn generate_tree_positions() -> Vec<Vec3> {
+    let mut positions = Vec::new();
+    let mut z_depth = -1.0;
+
+    // 配置エリアの定義
+    let tree_areas = [
+        // 左側草エリア
+        (-1800..=-600, -350..=400),
+        // 右側草エリア
+        (600..=1800, -350..=400),
+    ];
+
+    // 各エリアにツリーを配置
+    for (x_range, y_range) in tree_areas {
+        for x in x_range.step_by(50) {
+            for y in y_range.clone().step_by(50) {
+                positions.push(Vec3::new(x as f32, y as f32, z_depth));
+                z_depth -= 0.001; // より細かい深度制御
+            }
+        }
+    }
+
+    positions
 }
