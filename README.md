@@ -97,6 +97,7 @@ The game uses pixel art assets including:
 - Environmental textures (grass, sea, trees)
 - Building and town backgrounds
 - Background music (OGG format)
+- grass color is attached #77de34
 
 ## 🔧 Configuration
 
