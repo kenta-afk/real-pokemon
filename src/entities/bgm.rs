@@ -3,12 +3,14 @@ use bevy::{audio::AudioSource, prelude::*};
 #[derive(PartialEq, Eq, Clone, Copy)]
 pub enum BgmType {
     KanokoTown,
+    FirstStreet,
     // 将来追加予定: MasaraTown, Route1, Battle, etc.
 }
 
 #[derive(Resource)]
 pub struct BgmHandles {
     pub kanoko_town: Handle<AudioSource>,
+    pub first_street: Handle<AudioSource>,
     // 将来追加予定: pub masara_town: Handle<AudioSource>,
 }
 

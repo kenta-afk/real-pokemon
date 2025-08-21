@@ -6,7 +6,7 @@ mod systems;
 
 use plugins::{
     bgm_plugin::BgmPlugin, camera_plugin::CameraPlugin, character_plugin::CharacterPlugin,
-    kanoko_plugin::KanokoPlugin,
+    first_street_plugin::FirstStreetPlugin, kanoko_plugin::KanokoPlugin,
 };
 
 fn main() {
@@ -16,5 +16,6 @@ fn main() {
         .add_plugins(CharacterPlugin)
         .add_plugins(BgmPlugin)
         .add_plugins(KanokoPlugin)
+        .add_plugins(FirstStreetPlugin)
         .run();
 }

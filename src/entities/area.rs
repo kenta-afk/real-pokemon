@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 /// エリアの座標範囲定数
 pub const KANOKO_RECT: (Vec2, Vec2) = (Vec2::new(0.0, 0.0), Vec2::new(256.0, 256.0));
+pub const FIRST_STREET_RECT: (Vec2, Vec2) = (Vec2::new(256.0, 0.0), Vec2::new(512.0, 256.0));
 // 将来追加される他のエリアの座標
 // pub const MASARA_RECT: (Vec2, Vec2) = (Vec2::new(-300.0, -300.0), Vec2::new(-50.0, -50.0));
 
@@ -10,6 +11,7 @@ pub enum Area {
     #[default]
     Other,
     KanokoTown,
+    FirstStreet,
 }
 
 impl Area {
@@ -18,6 +20,9 @@ impl Area {
         // 各エリアの座標範囲をチェック
         if Self::is_in_rect(pos, KANOKO_RECT) {
             return Area::KanokoTown;
+        }
+        if Self::is_in_rect(pos, FIRST_STREET_RECT) {
+            return Area::FirstStreet;
         }
 
         // 将来的に他のエリアを追加

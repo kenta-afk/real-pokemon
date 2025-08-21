@@ -29,11 +29,13 @@ pub fn bgm_control_system(
 
 pub fn setup_bgm_resources(mut commands: Commands, asset_server: Res<AssetServer>) {
     let kanoko_bgm = asset_server.load("kanoko_town/output.ogg");
+    let first_street_bgm = asset_server.load("first_street/first_street_bgm.ogg");
     // 将来的に他のBGMも追加
     // let masara_bgm = asset_server.load("masara_town/bgm.ogg");
 
     commands.insert_resource(BgmHandles {
         kanoko_town: kanoko_bgm,
+        first_street: first_street_bgm,
         // masara_town: masara_bgm,
     });
 }
@@ -70,6 +72,11 @@ fn play_bgm_for_area(commands: &mut Commands, bgm_handles: &BgmHandles, area: &A
                 BgmType::KanokoTown,
             );
         }
+        Area::FirstStreet => spawn_bgm(
+            commands,
+            bgm_handles.first_street.clone(),
+            BgmType::FirstStreet,
+        ),
         Area::Other => {
             // Other エリアではBGMなし（または将来的にデフォルトBGM）
         }
