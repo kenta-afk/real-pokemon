@@ -8,7 +8,6 @@ use crate::entities::{
     bgm::{BgmHandles, BgmTag, BgmType},
 };
 
-/// BGMを管理する汎用システム
 pub fn bgm_control_system(
     mut commands: Commands,
     player_query: Query<&Transform, With<Player>>,
@@ -20,17 +19,14 @@ pub fn bgm_control_system(
     let current_area = determine_area_from_position(player_pos);
 
     if current_area != *area {
-        // エリアが変わったので現在のBGMを停止
         stop_all_bgm(&mut commands, &audio_players);
 
-        // 新しいエリアのBGMを再生
         play_bgm_for_area(&mut commands, &bgm_handles, &current_area);
 
         *area = current_area;
     }
 }
 
-/// BGMリソースを初期化する
 pub fn setup_bgm_resources(mut commands: Commands, asset_server: Res<AssetServer>) {
     let kanoko_bgm = asset_server.load("kanoko_town/output.ogg");
     // 将来的に他のBGMも追加
@@ -42,27 +38,22 @@ pub fn setup_bgm_resources(mut commands: Commands, asset_server: Res<AssetServer
     });
 }
 
-/// 初期BGMを再生する（プレイヤーの位置を確認してから）
 pub fn start_initial_bgm(
     mut commands: Commands,
     player_query: Query<&Transform, With<Player>>,
     bgm_handles: Res<BgmHandles>,
     mut area: ResMut<Area>,
 ) {
-    // プレイヤーの現在位置を取得
     if let Some(player_transform) = player_query.iter().next() {
         let player_pos = player_transform.translation.truncate();
         let current_area = Area::from_position(player_pos);
 
-        // 現在のエリアに応じてBGMを再生
         play_bgm_for_area(&mut commands, &bgm_handles, &current_area);
 
-        // エリア状態を更新
         *area = current_area;
     }
 }
 
-/// プレイヤーの位置からエリアを判定する
 fn determine_area_from_position(pos: Option<Vec2>) -> Area {
     match pos {
         Some(pos) => Area::from_position(pos),
@@ -70,7 +61,6 @@ fn determine_area_from_position(pos: Option<Vec2>) -> Area {
     }
 }
 
-/// エリアに応じてBGMを再生する
 fn play_bgm_for_area(commands: &mut Commands, bgm_handles: &BgmHandles, area: &Area) {
     match area {
         Area::KanokoTown => {
@@ -86,7 +76,6 @@ fn play_bgm_for_area(commands: &mut Commands, bgm_handles: &BgmHandles, area: &A
     }
 }
 
-/// BGMエンティティを生成する汎用関数
 fn spawn_bgm(
     commands: &mut Commands,
     audio_handle: Handle<bevy::audio::AudioSource>,
@@ -103,7 +92,6 @@ fn spawn_bgm(
     ));
 }
 
-/// 全てのBGMを停止する汎用関数
 fn stop_all_bgm(
     commands: &mut Commands,
     audio_players: &Query<Entity, (With<AudioPlayer>, With<BgmTag>)>,

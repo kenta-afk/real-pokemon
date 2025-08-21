@@ -1,6 +1,5 @@
 use bevy::prelude::*;
 
-/// カノコタウンのメイン背景を配置するシステム
 pub fn setup_kanoko_background(commands: &mut Commands, asset_server: &Res<AssetServer>) {
     commands.spawn((
         Sprite {

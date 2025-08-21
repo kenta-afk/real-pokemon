@@ -2,7 +2,6 @@ use bevy::prelude::*;
 
 use crate::entities::obstacle::Obstacle;
 
-/// カノコタウンの木を配置するシステム
 pub fn setup_trees(commands: &mut Commands, asset_server: &Res<AssetServer>) {
     let tree_texture = asset_server.load("utils/tree.png");
     let tree_positions = generate_tree_positions();

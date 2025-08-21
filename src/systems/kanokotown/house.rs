@@ -2,7 +2,6 @@ use bevy::prelude::*;
 
 use crate::entities::obstacle::Obstacle;
 
-/// カノコタウンの家々を配置するシステム
 pub fn setup_houses(commands: &mut Commands, asset_server: &Res<AssetServer>) {
     let house_texture = asset_server.load("kanoko_town/house.png");
     let house_size = Vec2::new(300.0, 300.0);

@@ -2,7 +2,6 @@ use bevy::prelude::*;
 
 use crate::entities::obstacle::Obstacle;
 
-/// フェンスを配置するシステム
 pub fn setup_fence(commands: &mut Commands, asset_server: &Res<AssetServer>) {
     commands.spawn((
         Sprite {

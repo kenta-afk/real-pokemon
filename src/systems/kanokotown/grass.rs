@@ -1,6 +1,5 @@
 use bevy::prelude::*;
 
-/// 草のテクスチャを配置するシステム
 pub fn setup_grass(commands: &mut Commands, asset_server: &Res<AssetServer>) {
     let grass_texture = asset_server.load("utils/grass.png");
     let grass_size = Vec2::new(1200.0, 800.0);

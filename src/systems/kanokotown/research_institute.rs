@@ -2,7 +2,6 @@ use bevy::prelude::*;
 
 use crate::entities::obstacle::Obstacle;
 
-/// アララギ研究所を配置するシステム
 pub fn setup_research_institute(commands: &mut Commands, asset_server: &Res<AssetServer>) {
     commands.spawn((
         Sprite {
